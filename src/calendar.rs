@@ -1,4 +1,5 @@
 use crate::{AnimeType, Rating, Ratings};
+use chrono::{Date, DateTime};
 
 pub const AIRING_NEXT_TV_URL: &str = "https://data.simkl.in/calendar/tv.json";
 pub const AIRING_NEXT_ANIME_URL: &str = "https://data.simkl.in/calendar/anime.json";

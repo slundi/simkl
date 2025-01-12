@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use chrono::DateTime;
 
 use crate::API_URL;
 
@@ -34,7 +35,7 @@ const SETTINGS_URL: &str = "https://api.simkl.com/users/settings";
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct User {
     pub name: String,
-    // joined_at: DateTime
+    joined_at: DateTime,
     pub gender: String,
     /// Avatar URL
     pub avatar: String,
@@ -149,7 +150,7 @@ pub enum LastWatchedImage {
 }
 
 /// Response will redirect (`HTTP 302`) to the image to download or display. Header will look like:
-/// 
+///
 /// `location: https://simkl.in/fanart/50/500671636445e211e_0.jpg`
 pub fn get_last_watched_image_request(
     user_id: u32,
@@ -169,6 +170,8 @@ pub fn get_last_watched_image_request(
     result.push_str(&client_id);
     result
 }
+
+// TODO: https://simkl.docs.apiary.io/reference/checkin
 
 #[cfg(test)]
 mod tests {

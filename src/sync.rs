@@ -1,6 +1,7 @@
 use std::result;
 
 use crate::API_URL;
+use chrono::DateTime;
 
 /// to retrieve the latest activity timestamps for the user. This endpoint provides timestamps for various categories
 /// and media types, indicating the last time each was updated.
