@@ -1,3 +1,5 @@
+use crate::{Extended, API_URL};
+
 /// Struct used to build the payload of a search by ID
 #[derive(Default, Debug, Clone, PartialEq)]
 pub struct IdLookup {
@@ -7,7 +9,7 @@ pub struct IdLookup {
     pub mal: Option<u32>,
     pub tvdb: Option<u32>,
     pub tmdb: Option<u32>,
-    pub imdb: String,
+    pub imdb: Option<String>,
     pub anidb: Option<u32>,
     pub crunchyroll: Option<u32>,
     pub anilist: Option<u32>,
@@ -27,71 +29,71 @@ pub fn get_search_by_id_request(payload: IdLookup, client_id: String) -> String 
     let mut result = String::from(API_URL);
     result.push_str("search/id?client_id=");
     result.push_str(&client_id);
-    if let Ok(id) = payload.simkl {
+    if let Some(id) = payload.simkl {
         result.push_str("&simkl=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.hulu {
+    if let Some(id) = payload.hulu {
         result.push_str("&hulu=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.netflix {
+    if let Some(id) = payload.netflix {
         result.push_str("&netflix=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.mal {
+    if let Some(id) = payload.mal {
         result.push_str("&mal=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.tvdb {
+    if let Some(id) = payload.tvdb {
         result.push_str("&tvdb=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.tmdb {
+    if let Some(id) = payload.tmdb {
         result.push_str("&tmdb=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.imdb {
+    if let Some(id) = payload.imdb {
         result.push_str("&imdb=");
-        result.push_str(&id.to_string());
+        result.push_str(&id);
     }
-    if let Ok(id) = payload.anidb {
+    if let Some(id) = payload.anidb {
         result.push_str("&anidb=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.crunchyroll {
+    if let Some(id) = payload.crunchyroll {
         result.push_str("&crunchyroll=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.anilist {
+    if let Some(id) = payload.anilist {
         result.push_str("&anilist=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.kitsu {
+    if let Some(id) = payload.kitsu {
         result.push_str("&kitsu=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.livechart {
+    if let Some(id) = payload.livechart {
         result.push_str("&livechart=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.anisearch {
+    if let Some(id) = payload.anisearch {
         result.push_str("&anisearch=");
         result.push_str(&id.to_string());
     }
-    if let Ok(id) = payload.animeplanet {
+    if let Some(id) = payload.animeplanet {
         result.push_str("&animeplanet=");
         result.push_str(&id.to_string());
     }
-    if let Ok(t) = payload.r#type {
+    if let Some(t) = payload.r#type {
         result.push_str("&type=");
         result.push_str(&t);
     }
-    if let Ok(t) = payload.title {
+    if let Some(t) = payload.title {
         result.push_str("&title=");
         result.push_str(&t);
     }
-    if let Ok(y) = payload.year {
+    if let Some(y) = payload.year {
         result.push_str("&year=");
         result.push_str(&y.to_string());
     }
@@ -123,7 +125,7 @@ mod tests {
 
     #[test]
     fn test_id_request() {
-        let mut payload = IdLookup {
+        let payload = IdLookup {
             simkl: Some(123),
             ..Default::default()
         };

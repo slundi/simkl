@@ -1,3 +1,6 @@
+use chrono::{DateTime, Utc};
+use serde::Deserialize;
+
 pub mod calendar;
 pub mod search;
 pub mod sync;
@@ -13,35 +16,49 @@ pub const API_URL: &str = "https://api.simkl.com/";
 /// By default methods are not returnig additional data for movies, anime, show etc. They return minimal info you need
 /// to match in the local database. But, if you need more information just add `extended={fields}`` to the URL.
 /// Will be in lower case
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Extended {
-    #[default(true)]
     pub full: bool,
 
-    #[default(false)]
     pub title: bool,
-    #[default(false)]
     pub slug: bool,
-    #[default(false)]
     pub overview: bool,
-    #[default(false)]
     pub metadata: bool,
-    #[default(false)]
     pub theater: bool,
-    #[default(false)]
     pub genres: bool,
-    #[default(false)]
     pub tmdb: bool,
 }
 
+impl Default for Extended {
+    fn default() -> Self {
+        Self {
+            full: true,
+            title: false,
+            slug: false,
+            overview: false,
+            metadata: false,
+            theater: false,
+            genres: false,
+            tmdb: false,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
 #[repr(u8)]
 pub enum AnimeType {
+    #[serde(rename(deserialize = "tv"))]
     Tv,
+    #[serde(rename(deserialize = "special"))]
     Special,
+    #[serde(rename(deserialize = "ova"))]
     Ova,
+    #[serde(rename(deserialize = "movie"))]
     Movie,
     // will be "music video"
+    #[serde(rename(deserialize = "music video"))]
     MusicVideo,
+    #[serde(rename(deserialize = "ona"))]
     Ona,
 }
 
@@ -57,33 +74,33 @@ pub fn get_extended_parameter(extended: Extended) -> Result<String, &'static str
     {
         return Err("extended cannot be full and have another parameter");
     }
-    let selected: Vec<&str> = Vec::with_capacity(8);
-    if selected.full {
+    let mut selected: Vec<&str> = Vec::with_capacity(8);
+    if extended.full {
         selected.push("full");
     }
-    if selected.title {
+    if extended.title {
         selected.push("title");
     }
-    if selected.slug {
+    if extended.slug {
         selected.push("slug");
     }
-    if selected.overview {
+    if extended.overview {
         selected.push("overview");
     }
-    if selected.metadata {
+    if extended.metadata {
         selected.push("metadata");
     }
-    if selected.theater {
+    if extended.theater {
         selected.push("theater");
     }
-    if selected.genres {
+    if extended.genres {
         selected.push("genres");
     }
-    if selected.tmdb {
+    if extended.tmdb {
         selected.push("tmdb");
     }
 
-    // FIXME: let result = selected.into_iter().collect::<Vec<&str>>.join(",");
+    let result = selected.into_iter().collect::<Vec<&str>>().join(",");
     Ok(result)
 }
 
@@ -106,7 +123,7 @@ pub fn get_pagination_parameter(page: u16, limit: u16) -> String {
     result
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize)]
 pub struct Ids {
     pub simkl: Option<u32>,
     pub imdb: Option<String>,
@@ -118,30 +135,30 @@ pub struct Ids {
     pub anidb: Option<u32>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize)]
 pub struct SeasonEpisode {
     pub number: u16,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize)]
 pub struct Season {
     pub number: u16,
     pub episodes: Vec<SeasonEpisode>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize)]
 pub struct StandardMediaObject {
     pub title: String,
     pub year: u16,
     pub ids: Ids,
-    pub seasons: Option<Vec>,
-    pub episodes: Option<SeasonVec>,
+    pub seasons: Option<Vec<Season>>,
+    pub episodes: Option<Vec<SeasonEpisode>>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Deserialize)]
 pub struct Episode {
     pub ids: Ids,
-    // pub watched_at: DateTime,
+    pub watched_at: DateTime<Utc>,
 }
 
 pub fn get_auth_url(client_id: &str, redirect_url: &str) -> String {
@@ -156,19 +173,19 @@ pub fn get_auth_url(client_id: &str, redirect_url: &str) -> String {
 
 // TODO: images, PIN for devices with limited UI, calendar (next 33 days, monthly)
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Rank {
     r#type: String,
     votes: u32,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Rating {
     pub rating: Option<f32>,
     pub votes: Option<u32>,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Ratings {
     id: u16,
     link: String,

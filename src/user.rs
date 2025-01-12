@@ -1,5 +1,5 @@
+use chrono::{DateTime, Utc};
 use serde::Deserialize;
-use chrono::DateTime;
 
 use crate::API_URL;
 
@@ -35,7 +35,7 @@ const SETTINGS_URL: &str = "https://api.simkl.com/users/settings";
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct User {
     pub name: String,
-    joined_at: DateTime,
+    joined_at: DateTime<Utc>,
     pub gender: String,
     /// Avatar URL
     pub avatar: String,
@@ -136,35 +136,25 @@ pub fn get_last_watched_arts(user_id: u32, client_id: String) -> String {
     let mut result = String::with_capacity(128);
     result.push_str(API_URL);
     result.push_str("users/recently-watched-background/");
-    result.push(&user_id.to_string());
+    result.push_str(&user_id.to_string());
     result.push_str("?client_id=");
     result.push_str(&client_id);
     result
 }
 
-#[derive(Default, Debug, Clone, PartialEq)]
-#[repr(bool)]
-pub enum LastWatchedImage {
-    Poster,
-    Fanart,
-}
-
 /// Response will redirect (`HTTP 302`) to the image to download or display. Header will look like:
 ///
 /// `location: https://simkl.in/fanart/50/500671636445e211e_0.jpg`
-pub fn get_last_watched_image_request(
-    user_id: u32,
-    image: LastWatchedImage,
-    client_id: String,
-) -> String {
+pub fn get_last_watched_image_request(user_id: u32, fanart: bool, client_id: String) -> String {
     let mut result = String::with_capacity(128);
     result.push_str(API_URL);
     result.push_str("users/recently-watched-background/");
-    result.push(&user_id.to_string());
+    result.push_str(&user_id.to_string());
     result.push_str("?image=");
-    match image {
-        LastWatchedImage::Poster => result.push_str("poster"),
-        LastWatchedImage::Fanart => result.push_str("fanart"),
+    if fanart {
+        result.push_str("fanart")
+    } else {
+        result.push_str("poster");
     }
     result.push_str("&client_id=");
     result.push_str(&client_id);
@@ -175,13 +165,13 @@ pub fn get_last_watched_image_request(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::user::get_last_watched_arts;
 
     #[test]
     fn test_last_watched_arts_request() {
         let client_id = String::from("azerty123456");
         assert_eq!(
-            get_search_by_iget_last_watched_artsd_request(4321, client_id),
+            get_last_watched_arts(4321, client_id),
             "https://api.simkl.com/users/recently-watched-background/4321/?client_id=azerty123456"
         );
     }

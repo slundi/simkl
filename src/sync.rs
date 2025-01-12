@@ -1,7 +1,6 @@
-use std::result;
-
-use crate::API_URL;
-use chrono::DateTime;
+use crate::{Extended, API_URL};
+use chrono::{DateTime, Utc};
+use serde::Deserialize;
 
 /// to retrieve the latest activity timestamps for the user. This endpoint provides timestamps for various categories
 /// and media types, indicating the last time each was updated.
@@ -16,25 +15,25 @@ pub const USER_ACTIVITIES: &str = "https://api.simkl.com/sync/activities";
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct SyncSettings {
-    pub all: DateTime,
+    pub all: DateTime<Utc>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct MediaActivity {
-    pub all: DateTime,
-    pub rated_at: DateTime,
+    pub all: DateTime<Utc>,
+    pub rated_at: DateTime<Utc>,
     #[serde(rename = "plantowatch")]
-    pub plan_to_watch: DateTime,
-    pub watching: Option<DateTime>,
-    pub completed: DateTime,
-    pub hold: Option<DateTime>,
-    pub dropped: DateTime,
-    pub removed_from_list: DateTime,
+    pub plan_to_watch: DateTime<Utc>,
+    pub watching: Option<DateTime<Utc>>,
+    pub completed: DateTime<Utc>,
+    pub hold: Option<DateTime<Utc>>,
+    pub dropped: DateTime<Utc>,
+    pub removed_from_list: DateTime<Utc>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Activities {
-    pub all: DateTime,
+    pub all: DateTime<Utc>,
     pub settings: SyncSettings,
     pub tv_shows: MediaActivity,
     pub anime: MediaActivity,
@@ -54,9 +53,9 @@ pub const USER_ITEMS: &str = "https://api.simkl.com/sync/all-items/";
 /// Instead of getting everything, you can get only one element (animes, movies, shows, ..., ratings, ...). You can
 /// also use a starting date
 pub fn get_all_items_request(
-    what: String,
-    from: Option<DateTime>,
-    extended: Option<Extended>,
+    what: Option<String>,
+    from: Option<DateTime<Utc>>,
+    _extended: Option<Extended>,
 ) -> String {
     // TODO: may use payload instead because we can filter on more stuffs: https://simkl.docs.apiary.io/reference/sync/get-all-items
     let mut result = String::from(USER_ITEMS);
@@ -66,7 +65,7 @@ pub fn get_all_items_request(
     }
     if let Some(d) = from {
         result.push_str("?date_from=");
-        // TODO: from
+        result.push_str(&d.to_rfc3339());
     }
     result
 }
