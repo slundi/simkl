@@ -1,4 +1,5 @@
 pub mod search;
+pub mod sync;
 pub mod user;
 
 /// API URL, queries will need the following headers:

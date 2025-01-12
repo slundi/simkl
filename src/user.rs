@@ -106,13 +106,14 @@ pub struct TvOrAnime {
     total_mins: u32,
     pub watching: Watched,
     pub hold: Watched,
-    // TODO: serde rename without _
+    #[serde(rename = "plantowatch")]
     pub plan_to_watch: Watched,
-    // TODO: serde rename without _
+    #[serde(rename = "notinteresting")]
     pub not_interesting: CompletedOrNotInteresting,
     pub completed: CompletedOrNotInteresting,
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Stats {
     pub total_mins: u32,
     pub movies: Movies,
@@ -121,6 +122,7 @@ pub struct Stats {
     pub watched_last_week: WatchedLastWeek,
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct LastWatchedArts {
     pub id: u32,
     pub url: String,
