@@ -1,3 +1,4 @@
+pub mod calendar;
 pub mod search;
 pub mod sync;
 pub mod user;
@@ -33,23 +34,55 @@ pub struct Extended {
     pub tmdb: bool,
 }
 
+#[repr(u8)]
+pub enum AnimeType {
+    Tv,
+    Special,
+    Ova,
+    Movie,
+    // will be "music video"
+    MusicVideo,
+    Ona,
+}
 
 pub fn get_extended_parameter(extended: Extended) -> Result<String, &'static str> {
-    if extended.full && (
-        extended.title || extended.slug || extended.overview || extended.metadata || extended.theater || extended.genres || extended.tmdb
-    ) {
+    if extended.full
+        && (extended.title
+            || extended.slug
+            || extended.overview
+            || extended.metadata
+            || extended.theater
+            || extended.genres
+            || extended.tmdb)
+    {
         return Err("extended cannot be full and have another parameter");
     }
     let selected: Vec<&str> = Vec::with_capacity(8);
-    if selected.full {selected.push("full");}
-    if selected.title {selected.push("title");}
-    if selected.slug {selected.push("slug");}
-    if selected.overview {selected.push("overview");}
-    if selected.metadata {selected.push("metadata");}
-    if selected.theater {selected.push("theater");}
-    if selected.genres {selected.push("genres");}
-    if selected.tmdb {selected.push("tmdb");}
-    
+    if selected.full {
+        selected.push("full");
+    }
+    if selected.title {
+        selected.push("title");
+    }
+    if selected.slug {
+        selected.push("slug");
+    }
+    if selected.overview {
+        selected.push("overview");
+    }
+    if selected.metadata {
+        selected.push("metadata");
+    }
+    if selected.theater {
+        selected.push("theater");
+    }
+    if selected.genres {
+        selected.push("genres");
+    }
+    if selected.tmdb {
+        selected.push("tmdb");
+    }
+
     // FIXME: let result = selected.into_iter().collect::<Vec<&str>>.join(",");
     Ok(result)
 }
@@ -89,7 +122,6 @@ pub struct Ids {
 pub struct SeasonEpisode {
     pub number: u16,
 }
-
 
 #[derive(Default, Debug, Clone)]
 pub struct Season {
@@ -132,8 +164,8 @@ pub struct Rank {
 
 #[derive(Default, Debug, Clone)]
 pub struct Rating {
-    pub rating: f32,
-    pub votes: u32,
+    pub rating: Option<f32>,
+    pub votes: Option<u32>,
 }
 
 #[derive(Default, Debug, Clone)]
