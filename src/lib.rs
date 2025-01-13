@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
 pub mod calendar;
+pub mod images;
 pub mod pin;
 pub mod search;
 pub mod sync;
@@ -171,8 +172,6 @@ pub fn get_auth_url(client_id: &str, redirect_url: &str) -> String {
     result.push_str(client_id);
     result
 }
-
-// TODO: images
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Rank {
