@@ -108,7 +108,7 @@ pub fn get_episodes_url(
     set_extension(result, webp)
 }
 
-pub fn get_avatars_url(prefix: String, image_url: String, size: AvatarSize, webp: bool) -> String {
+pub fn get_avatar_url(prefix: String, image_url: String, size: AvatarSize, webp: bool) -> String {
     let mut result = String::from(IMAGE_SERVER);
     result.push_str("episodes/");
     result.push_str(&prefix);
@@ -122,4 +122,159 @@ pub fn get_avatars_url(prefix: String, image_url: String, size: AvatarSize, webp
         AvatarSize::VeryBig => result.push_str("_512"),
     }
     set_extension(result, webp)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_poster_urls() {
+        let prefix = String::from("74");
+        let image_url = String::from("74415673dcdc9cdd");
+        assert_eq!(
+            get_poster_url(
+                prefix.clone(),
+                image_url.clone(),
+                PosterSize::W600x338,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/posters/74/74415673dcdc9cdd_w.webp"
+        );
+        assert_eq!(
+            get_poster_url(prefix.clone(), image_url.clone(), PosterSize::M340x, false),
+            "https://wsrv.nl/?url=https://simkl.in/posters/74/74415673dcdc9cdd_m.jpg"
+        );
+        assert_eq!(
+            get_poster_url(
+                prefix.clone(),
+                image_url.clone(),
+                PosterSize::Ca190x279,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/posters/74/74415673dcdc9cdd_ca.webp"
+        );
+        assert_eq!(
+            get_poster_url(
+                prefix.clone(),
+                image_url.clone(),
+                PosterSize::C170x250,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/posters/74/74415673dcdc9cdd_c.webp"
+        );
+        assert_eq!(
+            get_poster_url(
+                prefix.clone(),
+                image_url.clone(),
+                PosterSize::Cm84x124,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/posters/74/74415673dcdc9cdd_cm.webp"
+        );
+        assert_eq!(
+            get_poster_url(prefix.clone(), image_url.clone(), PosterSize::S40x57, true),
+            "https://wsrv.nl/?url=https://simkl.in/posters/74/74415673dcdc9cdd_s.webp"
+        );
+    }
+
+    #[test]
+    fn test_fanart_urls() {
+        let prefix = String::from("71");
+        let image_url = String::from("710408ec0a1bd207");
+        assert_eq!(
+            get_fanart_url(prefix.clone(), image_url.clone(), FanartSize::Darker, true),
+            "https://wsrv.nl/?url=https://simkl.in/fanart/71/710408ec0a1bd207_d.webp"
+        );
+        assert_eq!(
+            get_fanart_url(
+                prefix.clone(),
+                image_url.clone(),
+                FanartSize::Medium1920x1080,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/fanart/71/710408ec0a1bd207_medium.webp"
+        );
+        assert_eq!(
+            get_fanart_url(
+                prefix.clone(),
+                image_url.clone(),
+                FanartSize::Mobile950x540,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/fanart/71/710408ec0a1bd207_mobile.webp"
+        );
+        assert_eq!(
+            get_fanart_url(
+                prefix.clone(),
+                image_url.clone(),
+                FanartSize::W600x338,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/fanart/71/710408ec0a1bd207_w.webp"
+        );
+        assert_eq!(
+            get_fanart_url(prefix.clone(), image_url.clone(), FanartSize::S48x27, true),
+            "https://wsrv.nl/?url=https://simkl.in/fanart/71/710408ec0a1bd207_s48.webp"
+        );
+    }
+
+    #[test]
+    fn test_episode_urls() {
+        let prefix = String::from("26");
+        let image_url = String::from("265319260301d2ee2");
+        assert_eq!(
+            get_episodes_url(
+                prefix.clone(),
+                image_url.clone(),
+                EpisodeSize::W600x338,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/26/265319260301d2ee2_w.webp"
+        );
+        assert_eq!(
+            get_episodes_url(
+                prefix.clone(),
+                image_url.clone(),
+                EpisodeSize::C210x118,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/26/265319260301d2ee2_c.webp"
+        );
+        assert_eq!(
+            get_episodes_url(
+                prefix.clone(),
+                image_url.clone(),
+                EpisodeSize::M112x63,
+                true
+            ),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/26/265319260301d2ee2_s.webp"
+        );
+    }
+
+    #[test]
+    fn test_avatar_urls() {
+        let prefix = String::from("1");
+        let image_url = String::from("1");
+        assert_eq!(
+            get_avatar_url(prefix.clone(), image_url.clone(), AvatarSize::Icon, true),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/1/1_24.webp"
+        );
+        assert_eq!(
+            get_avatar_url(prefix.clone(), image_url.clone(), AvatarSize::Small, true),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/1/1_100.webp"
+        );
+        assert_eq!(
+            get_avatar_url(prefix.clone(), image_url.clone(), AvatarSize::Normal, true),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/1/1.webp"
+        );
+        assert_eq!(
+            get_avatar_url(prefix.clone(), image_url.clone(), AvatarSize::Big, true),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/1/1_200.webp"
+        );
+        assert_eq!(
+            get_avatar_url(prefix.clone(), image_url.clone(), AvatarSize::VeryBig, true),
+            "https://wsrv.nl/?url=https://simkl.in/episodes/1/1_256.webp"
+        );
+    }
 }
