@@ -125,7 +125,7 @@ pub fn get_pagination_parameter(page: u16, limit: u16) -> String {
     result
 }
 
-#[derive(Default, Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Ids {
     pub simkl: Option<u32>,
     pub imdb: Option<String>,
@@ -137,18 +137,18 @@ pub struct Ids {
     pub anidb: Option<u32>,
 }
 
-#[derive(Default, Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct SeasonEpisode {
     pub number: u16,
 }
 
-#[derive(Default, Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct Season {
     pub number: u16,
     pub episodes: Vec<SeasonEpisode>,
 }
 
-#[derive(Default, Debug, Clone, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct StandardMediaObject {
     pub title: String,
     pub year: u16,

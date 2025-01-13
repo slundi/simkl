@@ -1,7 +1,7 @@
 use chrono::{DateTime, Utc};
 use serde::Deserialize;
 
-use crate::API_URL;
+use crate::{StandardMediaObject, API_URL};
 
 /// User settings, requires those headers in your request:
 /// * `Content-Type:application/json`
@@ -30,7 +30,8 @@ use crate::API_URL;
 ///   }
 /// }
 /// ```
-const SETTINGS_URL: &str = "https://api.simkl.com/users/settings";
+pub const SETTINGS_URL: &str = "https://api.simkl.com/users/settings";
+pub const CHECKIN_URL: &str = "https://api.simkl.com/checkin";
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct User {
@@ -161,7 +162,12 @@ pub fn get_last_watched_image_request(user_id: u32, fanart: bool, client_id: Str
     result
 }
 
-// TODO: https://simkl.docs.apiary.io/reference/checkin
+#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
+pub struct CheckinResponse {
+    pub movie: Option<StandardMediaObject>,
+    pub show: Option<StandardMediaObject>,
+    pub anime: Option<StandardMediaObject>,
+}
 
 #[cfg(test)]
 mod tests {
