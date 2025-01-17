@@ -46,6 +46,129 @@ impl Default for Extended {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[repr(u8)]
+pub enum Type {
+    Tv,
+    Anime,
+    Movie,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(u8)]
+pub enum MovieGenre {
+    action,
+    adventure,
+    animation,
+    comedy,
+    crime,
+    documentary,
+    drama,
+    erotica,
+    Family,
+    fantasy,
+    foreign,
+    history,
+    horror,
+    music,
+    mystery,
+    romance,
+    science_fiction,
+    thriller,
+    tv_movie,
+    war,
+    western,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(u8)]
+pub enum TvGenre {
+    action,
+    adventure,
+    animation,
+    awards_show,
+    children,
+    comedy,
+    crime,
+    documentary,
+    drama,
+    erotica,
+    family,
+    fantasy,
+    food,
+    game_show,
+    history,
+    home_and_garden,
+    horror,
+    indie,
+    korean_drama,
+    martial_arts,
+    mini_series,
+    musical,
+    mystery,
+    news,
+    podcast,
+    reality,
+    romance,
+    science_fiction,
+    soap,
+    special_interest,
+    sport,
+    suspense,
+    talk_show,
+    thriller,
+    travel,
+    war,
+    western,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[repr(u8)]
+pub enum AnimeGenre {
+    action,
+    adventure,
+    cars,
+    comedy,
+    dementia,
+    demons,
+    drama,
+    ecchi,
+    fantasy,
+    game,
+    harem,
+    historical,
+    horror,
+    josei,
+    kids,
+    magic,
+    martial_arts,
+    mecha,
+    military,
+    music,
+    mystery,
+    parody,
+    police,
+    psychological,
+    romance,
+    samurai,
+    school,
+    sci_fi,
+    seinen,
+    shoujo,
+    shoujo_ai,
+    shounen,
+    shounen_ai,
+    slice_of_life,
+    space,
+    sports,
+    super_power,
+    supernatural,
+    thriller,
+    vampire,
+    yaoi,
+    yuri,
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
 #[repr(u8)]
 pub enum AnimeType {
@@ -200,5 +323,4 @@ pub fn get_rating() -> Rating {
     todo!()
 }
 
-// TODO: find by file
 // TODO: find random

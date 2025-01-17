@@ -1,18 +1,10 @@
-use crate::{AnimeType, Rating, API_URL};
+use crate::{AnimeType, Rating, Type, API_URL};
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::Deserialize;
 
 pub const AIRING_NEXT_TV_URL: &str = "https://data.simkl.in/calendar/tv.json";
 pub const AIRING_NEXT_ANIME_URL: &str = "https://data.simkl.in/calendar/anime.json";
 pub const AIRING_NEXT_MOVIE_URL: &str = "https://data.simkl.in/calendar/movie_release.json";
-
-#[derive(Debug, Clone, PartialEq, Deserialize)]
-#[repr(u8)]
-pub enum Type {
-    Tv,
-    Anime,
-    Movie,
-}
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
 pub struct RatingsItem {

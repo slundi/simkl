@@ -1,4 +1,15 @@
-use crate::{Extended, API_URL};
+use crate::{AnimeGenre, Extended, MovieGenre, TvGenre, API_URL};
+
+pub struct FindByFilePayload {
+    // Try to find the file from the filename, example:
+    /// `Were.The.Fugawis.S01E01E02.WS.DSR.x264-NY2.mkv`
+    pub file: String,
+    /// Some filenames consist of 2 or more parts. If you want to get info about second part for example you can pass 2 to this parameter
+    pub part: Option<u8>,
+}
+
+/// Find by file URL, use `FindByFilePayload` with this
+pub const FIND_BY_FILE_URL: &str = "https://api.simkl.com/search/file";
 
 /// Struct used to build the payload of a search by ID
 #[derive(Default, Debug, Clone, PartialEq)]
@@ -117,6 +128,38 @@ pub fn get_search_request(
     client_id: String,
 ) -> String {
     todo!()
+}
+
+pub struct FindRandomPayload {
+    pub service: String,
+    pub r#type: crate::Type, // v , anime , movie
+    pub movie_genre: MovieGenre,
+    pub tv_genre: TvGenre,
+    pub anime_genre: AnimeGenre,
+    /// Max value is 10. Random search for TV Shows and Movies will be performed using IMDB ratings. Anime are based on
+    /// MAL ratings.
+    ///
+    /// Example: `5`. Default: `1`.
+    pub rating_from: u8,
+    /// Example: `10`
+    pub rating_to: Option<u8>,
+    /// Maximum rank allowed. Example: `2000`.
+    pub rank_limit: u32,
+    pub year_from: Option<u16>,
+    pub year_to: Option<u16>,
+    pub limit: u16,
+}
+
+/// if you want to find random item based on your filters. If Token is passed, wacthed items will be excluded.
+///
+/// Examples:
+/// * `https://api.simkl.com/search/random?service=simkl&type=tv&genre=comedy&rating_from=5&rating_to=10&year_from=2004&year_to=2010&limit=10&client_id=***`
+/// * `https://api.simkl.com/search/random/netflix/?rating_from=5&rating_to=10&year_from=2008&year_to=2015&genre=science-fiction&client_id=***`
+/// * `https://api.simkl.com/search/random/?rating_from=5&rating_to=10&year_from=2008&year_to=2015&genre=science-fiction&client_id=***`
+pub fn get_find_random_request(payload: FindRandomPayload, client_id: String) -> String {
+    let mut result = String::from(API_URL);
+    result.push_str("search/random/");
+    result
 }
 
 #[cfg(test)]
