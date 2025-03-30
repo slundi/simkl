@@ -122,17 +122,38 @@ pub fn get_search_by_id_request(payload: IdLookup, client_id: String) -> String 
 ///
 /// Page limit is 20, max items per page is 50.
 pub fn get_search_request(
-    text: String,
-    r#type: String,
+    // Possible values are `tv`, `anime` or `movie`
+    r#type: Option<String>,
     extended: Option<Extended>,
     client_id: String,
+    // A search term or a URL pointing to media.
+    //
+    // When using URLs, type can be any, not required to be correct one.
+    //
+    // Type is required for text keywords.
+    //
+    // Examples: `john wick`, `john wick 2014`, `https://www.imdb.com/title/tt2911666/`, `https://letterboxd.com/film/john-wick/`
+    q: String,
 ) -> String {
-    todo!()
+    let mut result = String::from(API_URL);
+    result.push_str("search/type?client_id=");
+    result.push_str(&client_id);
+    result.push_str("&q=");
+    result.push_str(&q);
+    if let Some(t) = r#type {
+        result.push_str("&type=");
+        result.push_str(&t);
+    }
+    // if let Some(ext) = extended {
+    //     result.push_str("&extended=");
+    //     result.push_str(&ext.);
+    // }
+    result
 }
 
 pub struct FindRandomPayload {
     pub service: String,
-    pub r#type: crate::Type, // v , anime , movie
+    pub r#type: crate::Type, // tv , anime , movie
     pub movie_genre: MovieGenre,
     pub tv_genre: TvGenre,
     pub anime_genre: AnimeGenre,
@@ -142,12 +163,43 @@ pub struct FindRandomPayload {
     /// Example: `5`. Default: `1`.
     pub rating_from: u8,
     /// Example: `10`
-    pub rating_to: Option<u8>,
+    pub rating_to: u8,
     /// Maximum rank allowed. Example: `2000`.
     pub rank_limit: u32,
     pub year_from: Option<u16>,
     pub year_to: Option<u16>,
     pub limit: u16,
+}
+
+impl FindRandomPayload {
+    pub fn to_url_param(&self) -> String {
+        let mut result = String::from(API_URL);
+        result.push_str("&service=");
+        result.push_str(&self.service);
+        // result.push_str("&type=");
+        // result.push_str(&self.r#type);
+        todo!("type, genre");
+
+        if let Some(y) = self.year_from {
+            result.push_str("&year_from=");
+            result.push_str(&y.to_string());
+        }
+        if let Some(y) = self.year_to {
+            result.push_str("&year_to=");
+            result.push_str(&y.to_string());
+        }
+
+        result.push_str("&rating_from=");
+        result.push_str(&self.rating_from.to_string());
+        result.push_str("&rating_to=");
+        result.push_str(&self.rating_to.to_string());
+
+        result.push_str("&rank_limit=");
+        result.push_str(&self.rank_limit.to_string());
+        result.push_str("&limit=");
+        result.push_str(&self.limit.to_string());
+        result
+    }
 }
 
 /// if you want to find random item based on your filters. If Token is passed, wacthed items will be excluded.
@@ -158,7 +210,10 @@ pub struct FindRandomPayload {
 /// * `https://api.simkl.com/search/random/?rating_from=5&rating_to=10&year_from=2008&year_to=2015&genre=science-fiction&client_id=***`
 pub fn get_find_random_request(payload: FindRandomPayload, client_id: String) -> String {
     let mut result = String::from(API_URL);
-    result.push_str("search/random/");
+    result.push_str("search/random/?client_id=");
+    result.push_str(&client_id);
+    // result.push('&');
+    result.push_str(&payload.to_url_param());
     result
 }
 
