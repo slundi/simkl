@@ -54,6 +54,7 @@ pub enum Type {
     Movie,
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum MovieGenre {
@@ -80,6 +81,7 @@ pub enum MovieGenre {
     western,
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum TvGenre {
@@ -122,6 +124,7 @@ pub enum TvGenre {
     western,
 }
 
+#[allow(non_camel_case_types)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[repr(u8)]
 pub enum AnimeGenre {
