@@ -1,10 +1,16 @@
-use chrono::{DateTime, Utc};
-use serde::Deserialize;
+use std::{fmt, str::FromStr};
 
+use serde::{Deserialize, Serialize};
+
+pub mod anime;
 pub mod calendar;
 pub mod images;
+pub mod movie;
 pub mod pin;
+pub mod request;
+pub mod response;
 pub mod search;
+pub mod show;
 pub mod sync;
 pub mod user;
 
@@ -13,7 +19,9 @@ pub mod user;
 /// * `simkl-api-key: <client_id>` (listed under your Simkl applications)
 ///
 /// Full API doc is available at [https://simkl.docs.apiary.io/](https://simkl.docs.apiary.io/)
-pub const API_URL: &str = "https://api.simkl.com/";
+pub const API_URL: &str = "https://api.simkl.com";
+pub const OAUTH_URL: &str = "https://simkl.com/oauth/authorize";
+pub const TOKEN_URL: &str = "https://api.simkl.com/oauth/token";
 
 /// By default methods are not returnig additional data for movies, anime, show etc. They return minimal info you need
 /// to match in the local database. But, if you need more information just add `extended={fields}`` to the URL.
@@ -46,148 +54,51 @@ impl Default for Extended {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 #[repr(u8)]
-pub enum Type {
-    Tv,
+pub enum MediaType {
+    Movie,
+    Show,
     Anime,
-    Movie,
+    Episode,
 }
 
-#[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[repr(u8)]
-pub enum MovieGenre {
-    action,
-    adventure,
-    animation,
-    comedy,
-    crime,
-    documentary,
-    drama,
-    erotica,
-    Family,
-    fantasy,
-    foreign,
-    history,
-    horror,
-    music,
-    mystery,
-    romance,
-    science_fiction,
-    thriller,
-    tv_movie,
-    war,
-    western,
+impl fmt::Display for MediaType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let s = match self {
+            MediaType::Movie => "movie",
+            MediaType::Show => "show",
+            MediaType::Anime => "anime",
+            MediaType::Episode => "episode",
+        };
+        write!(f, "{}", s)
+    }
 }
 
-#[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[repr(u8)]
-pub enum TvGenre {
-    action,
-    adventure,
-    animation,
-    awards_show,
-    children,
-    comedy,
-    crime,
-    documentary,
-    drama,
-    erotica,
-    family,
-    fantasy,
-    food,
-    game_show,
-    history,
-    home_and_garden,
-    horror,
-    indie,
-    korean_drama,
-    martial_arts,
-    mini_series,
-    musical,
-    mystery,
-    news,
-    podcast,
-    reality,
-    romance,
-    science_fiction,
-    soap,
-    special_interest,
-    sport,
-    suspense,
-    talk_show,
-    thriller,
-    travel,
-    war,
-    western,
+impl FromStr for MediaType {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "movie" => Ok(MediaType::Movie),
+            "show" => Ok(MediaType::Show),
+            "anime" => Ok(MediaType::Anime),
+            "episode" => Ok(MediaType::Episode),
+            _ => Err(()),
+        }
+    }
 }
 
-#[allow(non_camel_case_types)]
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[repr(u8)]
-pub enum AnimeGenre {
-    action,
-    adventure,
-    cars,
-    comedy,
-    dementia,
-    demons,
-    drama,
-    ecchi,
-    fantasy,
-    game,
-    harem,
-    historical,
-    horror,
-    josei,
-    kids,
-    magic,
-    martial_arts,
-    mecha,
-    military,
-    music,
-    mystery,
-    parody,
-    police,
-    psychological,
-    romance,
-    samurai,
-    school,
-    sci_fi,
-    seinen,
-    shoujo,
-    shoujo_ai,
-    shounen,
-    shounen_ai,
-    slice_of_life,
-    space,
-    sports,
-    super_power,
-    supernatural,
-    thriller,
-    vampire,
-    yaoi,
-    yuri,
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Deserialize)]
-#[repr(u8)]
-pub enum AnimeType {
-    #[serde(rename(deserialize = "tv"))]
-    Tv,
-    #[serde(rename(deserialize = "special"))]
-    Special,
-    #[serde(rename(deserialize = "ova"))]
-    Ova,
-    #[serde(rename(deserialize = "movie"))]
-    Movie,
-    // will be "music video"
-    #[serde(rename(deserialize = "music video"))]
-    MusicVideo,
-    #[serde(rename(deserialize = "ona"))]
-    Ona,
+impl MediaType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            MediaType::Movie => "movie",
+            MediaType::Show => "show",
+            MediaType::Anime => "anime",
+            MediaType::Episode => "episode",
+        }
+    }
 }
 
 pub fn get_extended_parameter(extended: Extended) -> Result<String, &'static str> {
@@ -236,6 +147,7 @@ pub fn get_extended_parameter(extended: Extended) -> Result<String, &'static str
 /// you want to change this, append query string `?page={page}&limit={limit}` to the URL.
 ///
 /// additionally, all paginated endpoints will return these HTTP headers as well
+///
 /// | Header | Value |
 /// |--------|-------|
 /// | X-Pagination-Page | Current page |
@@ -251,16 +163,64 @@ pub fn get_pagination_parameter(page: u16, limit: u16) -> String {
     result
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Deserialize)]
-pub struct Ids {
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize, Default)]
+pub struct MediaIds {
     pub simkl: Option<u32>,
+    pub slug: Option<String>,
     pub imdb: Option<String>,
-    pub tmdb: Option<u32>,
     // TV only
-    pub tvdb: Option<u32>,
+    pub tmdb: Option<u32>,
     // anime only
     pub mal: Option<u32>,
+    pub anilist: Option<u32>,
     pub anidb: Option<u32>,
+    pub tvdb: Option<u32>,
+    pub kitsu: Option<u32>,
+}
+
+impl MediaIds {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_simkl(mut self, id: u32) -> Self {
+        self.simkl = Some(id);
+        self
+    }
+
+    pub fn with_imdb(mut self, id: String) -> Self {
+        self.imdb = Some(id);
+        self
+    }
+
+    pub fn with_tmdb(mut self, id: u32) -> Self {
+        self.tmdb = Some(id);
+        self
+    }
+
+    pub fn with_mal(mut self, id: u32) -> Self {
+        self.mal = Some(id);
+        self
+    }
+
+    pub fn has_any_id(&self) -> bool {
+        self.simkl.is_some()
+            || self.imdb.is_some()
+            || self.tmdb.is_some()
+            || self.mal.is_some()
+            || self.anilist.is_some()
+            || self.anidb.is_some()
+            || self.tvdb.is_some()
+            || self.kitsu.is_some()
+    }
+
+    pub fn primary_id(&self) -> Option<String> {
+        if let Some(id) = self.simkl {
+            Some(id.to_string())
+        } else if let Some(ref id) = self.imdb {
+            Some(id.clone())
+        } else { self.tmdb.map(|id| id.to_string()) }
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Deserialize)]
@@ -278,15 +238,30 @@ pub struct Season {
 pub struct StandardMediaObject {
     pub title: String,
     pub year: u16,
-    pub ids: Ids,
+    pub ids: MediaIds,
     pub seasons: Option<Vec<Season>>,
     pub episodes: Option<Vec<SeasonEpisode>>,
 }
 
-#[derive(Default, Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Episode {
-    pub ids: Ids,
-    pub watched_at: DateTime<Utc>,
+    pub title: String,
+    pub year: Option<u32>,
+    pub released: Option<String>,
+    pub pk: Option<u32>,
+    pub ids: Option<MediaIds>,
+    pub season: u32,
+    pub episode: u32,
+    pub watched: Option<bool>,
+    pub last_watched_at: Option<String>,
+    pub watchers: Option<u32>,
+    pub plays: Option<u32>,
+    pub img: Option<String>,
+    pub overview: Option<String>,
+    pub rating: Option<f32>,
+    pub votes: Option<u32>,
+    pub runtime: Option<u32>,
+    pub user_rating: Option<u8>,
 }
 
 pub fn get_auth_url(client_id: &str, redirect_url: &str) -> String {
@@ -319,6 +294,13 @@ pub struct Ratings {
     simkl: Rating,
     imdb: Option<Rating>,
     has_trailer: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AirInfo {
+    pub day: Option<String>,
+    pub time: Option<String>,
+    pub timezone: Option<String>,
 }
 
 /// Get rating (token not required)

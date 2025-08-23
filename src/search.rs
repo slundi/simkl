@@ -1,4 +1,4 @@
-use crate::{AnimeGenre, Extended, MovieGenre, TvGenre, API_URL};
+use crate::{anime::AnimeGenre, movie::MovieGenre, show::TvGenre, Extended, API_URL};
 
 pub struct FindByFilePayload {
     // Try to find the file from the filename, example:
@@ -153,7 +153,7 @@ pub fn get_search_request(
 
 pub struct FindRandomPayload {
     pub service: String,
-    pub r#type: crate::Type, // tv , anime , movie
+    pub r#type: crate::MediaType, // tv , anime , movie
     pub movie_genre: MovieGenre,
     pub tv_genre: TvGenre,
     pub anime_genre: AnimeGenre,

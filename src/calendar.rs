@@ -1,4 +1,4 @@
-use crate::{AnimeType, Rating, Type, API_URL};
+use crate::{anime::AnimeType, MediaType, Rating, API_URL};
 use chrono::{DateTime, NaiveDate, Utc};
 use serde::Deserialize;
 
@@ -46,16 +46,17 @@ pub struct CalendarItem {
 /// Parameters:
 /// * year: 4 digits format (example: `2025`)
 /// * month: from 1 to 12 where 1 is january
-pub fn get_monthly_request(what: Type, year: u16, month: u8) -> String {
+pub fn get_monthly_request(what: MediaType, year: u16, month: u8) -> String {
     let mut result = String::from(API_URL);
     result.push_str("calendar/");
     result.push_str(&year.to_string());
     result.push('/');
     result.push_str(&month.to_string());
     match what {
-        Type::Tv => result.push_str("/tv.json"),
-        Type::Anime => result.push_str("/anime.json"),
-        Type::Movie => result.push_str("/movie_release.json"),
+        MediaType::Show => result.push_str("/tv.json"),
+        MediaType::Anime => result.push_str("/anime.json"),
+        MediaType::Movie => result.push_str("/movie_release.json"),
+        MediaType::Episode => {},
     }
     result
 }
