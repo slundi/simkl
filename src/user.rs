@@ -178,7 +178,7 @@ mod tests {
         let client_id = String::from("azerty123456");
         assert_eq!(
             get_last_watched_arts(4321, client_id),
-            "https://api.simkl.com/users/recently-watched-background/4321/?client_id=azerty123456"
+            "https://api.simkl.com/users/recently-watched-background/4321?client_id=azerty123456"
         );
     }
 }
