@@ -3,6 +3,7 @@ use std::{fmt, str::FromStr};
 use serde::{Deserialize, Serialize};
 
 pub mod anime;
+pub mod auth;
 pub mod calendar;
 pub mod images;
 pub mod movie;
