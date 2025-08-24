@@ -1,6 +1,66 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 use crate::{Episode, MediaType, API_URL};
+
+#[derive(Debug, Clone)]
+pub enum HttpMethod {
+    GET,
+    POST,
+    PUT,
+    DELETE,
+}
+
+impl HttpMethod {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            HttpMethod::GET => "GET",
+            HttpMethod::POST => "POST",
+            HttpMethod::PUT => "PUT",
+            HttpMethod::DELETE => "DELETE",
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct PreparedRequest {
+    pub method: HttpMethod,
+    pub url: Url,
+    pub headers: HashMap<String, String>,
+    pub body: Option<String>,
+}
+
+impl PreparedRequest {
+    pub fn new(method: HttpMethod, url: Url) -> Self {
+        Self {
+            method,
+            url,
+            headers: HashMap::new(),
+            body: None,
+        }
+    }
+
+    pub fn with_header(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
+        self.headers.insert(key.into(), value.into());
+        self
+    }
+
+    pub fn with_json_body<T: serde::Serialize>(mut self, data: &T) -> crate::error::Result<Self> {
+        self.body = Some(serde_json::to_string(data)?);
+        self.headers
+            .insert("Content-Type".to_string(), "application/json".to_string());
+        Ok(self)
+    }
+
+    pub fn with_raw_body(mut self, body: String, content_type: &str) -> Self {
+        self.body = Some(body);
+        self.headers
+            .insert("Content-Type".to_string(), content_type.to_string());
+        self
+    }
+}
 
 pub trait SimklRequest {
     fn endpoint(&self) -> String;

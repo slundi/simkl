@@ -5,15 +5,55 @@ use serde::{Deserialize, Serialize};
 pub mod anime;
 pub mod auth;
 pub mod calendar;
+pub mod error;
 pub mod images;
 pub mod movie;
+pub mod pagination;
 pub mod pin;
+pub mod rate_limit;
 pub mod request;
 pub mod response;
 pub mod search;
 pub mod show;
 pub mod sync;
 pub mod user;
+
+#[derive(Debug)]
+pub enum SimklError {
+    /// JSON serialization/deserialization errors
+    Json(serde_json::Error),
+    /// Invalid URL
+    InvalidUrl(url::ParseError),
+    /// Missing or wrong parameters
+    InvalidParameters(String),
+    /// Parse error with the response
+    ParseError(String),
+}
+
+impl fmt::Display for SimklError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SimklError::Json(err) => write!(f, "Erreur JSON: {}", err),
+            SimklError::InvalidUrl(err) => write!(f, "URL invalide: {}", err),
+            SimklError::InvalidParameters(msg) => write!(f, "Paramètres invalides: {}", msg),
+            SimklError::ParseError(msg) => write!(f, "Erreur de parsing: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for SimklError {}
+
+impl From<serde_json::Error> for SimklError {
+    fn from(err: serde_json::Error) -> Self {
+        SimklError::Json(err)
+    }
+}
+
+impl From<url::ParseError> for SimklError {
+    fn from(err: url::ParseError) -> Self {
+        SimklError::InvalidUrl(err)
+    }
+}
 
 /// API URL, queries will need the following headers:
 /// * `Content-Type: application/json`
@@ -220,7 +260,9 @@ impl MediaIds {
             Some(id.to_string())
         } else if let Some(ref id) = self.imdb {
             Some(id.clone())
-        } else { self.tmdb.map(|id| id.to_string()) }
+        } else {
+            self.tmdb.map(|id| id.to_string())
+        }
     }
 }
 
